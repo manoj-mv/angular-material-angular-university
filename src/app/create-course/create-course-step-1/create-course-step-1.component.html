@@ -38,4 +38,12 @@
     </mat-datepicker>
     <mat-hint>DD/MM/YYYY</mat-hint>
   </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Enter text</mat-label>
+    <textarea matInput formControlName="longDescription" cdkTextareaAutosize [cdkAutosizeMinRows]="2"
+      [cdkAutosizeMaxRows]="10"></textarea>
+  </mat-form-field>
+  <mat-checkbox color="primary" formControlName="downloadsAllowed" [indeterminate]="true">
+    Downloads Allowed ?
+  </mat-checkbox>
 </div>
