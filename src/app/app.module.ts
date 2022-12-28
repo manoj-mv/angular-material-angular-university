@@ -47,6 +47,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { VirtualScrollingComponent } from './virtual-scrolling/virtual-scrolling.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -95,7 +96,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatGridListModule,
     MatTreeModule,
     ScrollingModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatExpansionModule
   ],
   providers: [
     CoursesService,

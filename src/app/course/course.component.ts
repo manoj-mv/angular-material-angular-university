@@ -1,118 +1,115 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from "@angular/router";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
-import {Course} from "../model/course";
-import {CoursesService} from "../services/courses.service";
-import {debounceTime, distinctUntilChanged, startWith, tap, delay} from 'rxjs/operators';
-import {merge, fromEvent} from "rxjs";
+import { Course } from "../model/course";
+import { CoursesService } from "../services/courses.service";
+import { debounceTime, distinctUntilChanged, startWith, tap, delay, catchError, finalize } from 'rxjs/operators';
+import { merge, fromEvent, Observable, of, throwError, Subscription } from "rxjs";
+import { Lesson } from '../model/lesson';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 
 @Component({
-    selector: 'course',
-    templateUrl: './course.component.html',
-    styleUrls: ['./course.component.scss']
+  selector: 'course',
+  templateUrl: './course.component.html',
+  styleUrls: ['./course.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
-export class CourseComponent implements OnInit, AfterViewInit {
+export class CourseComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    course:Course;
+  course: Course;
 
-    lessons = [
-       {
-        id: 120,
-        'description': 'Introduction to Angular Material',
-        'duration': '4:17',
-        'seqNo': 1,
-        courseId: 11
-      },
-      {
-        id: 121,
-        'description': 'Navigation and Containers',
-        'duration': '6:37',
-        'seqNo': 2,
-        courseId: 11
-      },
-      {
-        id: 122,
-        'description': 'Data Tables',
-        'duration': '8:03',
-        'seqNo': 3,
-        courseId: 11
-      },
-      {
-        id: 123,
-        'description': 'Dialogs and Overlays',
-        'duration': '11:46',
-        'seqNo': 4,
-        courseId: 11
-      },
-      {
-        id: 124,
-        'description': 'Commonly used Form Controls',
-        'duration': '7:17',
-        'seqNo': 5,
-        courseId: 11
-      },
-      {
-        id: 125,
-        'description': 'Drag and Drop',
-        'duration': '8:16',
-        'seqNo': 6,
-        courseId: 11
-      },
-      {
-        id: 126,
-        'description': 'Responsive Design',
-        'duration': '7:28',
-        'seqNo': 7,
-        courseId: 11
-      },
-      {
-        id: 127,
-        'description': 'Tree Component',
-        'duration': '11:09',
-        'seqNo': 8,
-        courseId: 11
-      },
-      {
-        id: 128,
-        'description': 'Virtual Scrolling',
-        'duration': '3:44',
-        'seqNo': 9,
-        courseId: 11
-      },
-      {
-        id: 129,
-        'description': 'Custom Themes',
-        'duration': '8:55',
-        'seqNo': 10,
-        courseId: 11
-      },
-      {
-        id: 130,
-        'description': 'Changing Theme at Runtime',
-        'duration': '12:37',
-        'seqNo': 11,
-        courseId: 11
-      }
-    ];
+  lessons: Lesson[] = [];
 
-    constructor(private route: ActivatedRoute,
-                private coursesService: CoursesService) {
+  isLoading = false;
 
+  displayedColumns = [
+    "seqNo", "description", "duration", "expand"
+  ];
+
+  dataSource = new MatTableDataSource<Lesson | null>(this.lessons);
+
+  lessonSubscription$: Subscription;
+
+  sortSubscription$: Subscription;
+
+  materialTableEvents$: Subscription;
+
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  @ViewChild(MatSort) sort: MatSort;
+
+  expandedLesson: Lesson | null = null;
+
+  expandedRow: Lesson;
+
+  constructor(private route: ActivatedRoute,
+    private coursesService: CoursesService) {
+
+  }
+
+  ngOnInit() {
+
+    this.course = this.route.snapshot.data["course"];
+    this.loadLessonsPage();
+
+  }
+
+  onToggleLesson(lesson: Lesson): void {
+    if (lesson == this.expandedLesson) {
+      this.expandedLesson = null;
+    } else {
+      this.expandedLesson = lesson;
+    }
+  }
+
+  loadLessonsPage(): void {
+    this.isLoading = true;
+    this.lessonSubscription$ = this.coursesService.findLessons(this.course.id, this.sort?.direction ?? "asc", this.paginator?.pageIndex ?? 0, this.paginator?.pageSize ?? 5, this.sort?.active ?? "seqNo").pipe(
+      tap(lessons => {
+        console.log(lessons);
+        this.lessons = lessons;
+      }),
+      catchError(err => {
+        console.log(err);
+        return throwError(err);
+      }),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    ).subscribe();
+  }
+
+  ngAfterViewInit() {
+    this.sortSubscription$ = this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0)
+    this.materialTableEvents$ = merge(this.sort.sortChange, this.paginator.page)
+      .pipe(
+        tap(() => {
+          this.loadLessonsPage();
+        })
+      ).subscribe();
+  }
+
+  ngOnDestroy(): void {
+    if (this.lessonSubscription$) {
+      this.lessonSubscription$.unsubscribe();
+    }
+    if (this.sortSubscription$) {
+      this.sortSubscription$.unsubscribe();
+    }
+    if (this.materialTableEvents$) {
+      this.materialTableEvents$.unsubscribe();
     }
 
-    ngOnInit() {
-
-        this.course = this.route.snapshot.data["course"];
-
-
-    }
-
-    ngAfterViewInit() {
-
-
-    }
+  }
 
 }
