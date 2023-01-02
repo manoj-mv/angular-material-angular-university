@@ -1,19 +1,23 @@
 <mat-sidenav-container fullscreen>
   <mat-sidenav #sidenav>
     <mat-nav-list (click)="sidenav.close()">
-      <a mat-list-item routerLink="['/']" class="list-item-container">
+      <a mat-list-item [routerLink]="['/']" class="list-item-container">
         <mat-icon>library_books</mat-icon> &nbsp;
         <span>Courses</span>
       </a>
-      <a mat-list-item routerLink="['/about']">
+      <a mat-list-item [routerLink]="['/about']">
         <mat-icon>question_answer</mat-icon>&nbsp;
         <span>About</span>
       </a>
-      <a mat-list-item routerLink="['/']">
+      <a mat-list-item routerLink="drag-drop-example">
+        <mat-icon>drag_indicator</mat-icon>&nbsp;
+        <span>Drag and Drop</span>
+      </a>
+      <a mat-list-item [routerLink]="['/']">
         <mat-icon>person_add</mat-icon>&nbsp;
         <span>Register</span>
       </a>
-      <a mat-list-item routerLink="['/']">
+      <a mat-list-item [routerLink]="['/']">
         <mat-icon>account_circle</mat-icon>
         <span>Login</span>
       </a>

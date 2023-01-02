@@ -1,3 +1,6 @@
+@import "../../mixins";
+
+@include drag-drop();
 
 .drag-drop-container {
   font-family: "Roboto";
@@ -35,16 +38,3 @@
 .done {
   margin-left: 30px;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
