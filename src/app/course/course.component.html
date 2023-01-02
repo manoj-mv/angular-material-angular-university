@@ -10,6 +10,16 @@
 
   <table mat-table class="mat-elevation-z8 lessons-table" [dataSource]="lessons" matSort matSortDisableClear
     matSortActive="seqNo" matSortDirection="asc" multiTemplateDataRows>
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox [checked]="selection.hasValue() && isAllSelected()" (change)="toggleAllCheckbox()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let lesson" (click)="$event.stopPropagation()">
+        <mat-checkbox (change)="onLessonToggledOnCheckbox(lesson)" [checked]="selection.isSelected(lesson)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
     <ng-container matColumnDef="seqNo">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
       <td mat-cell *matCellDef="let lesson">{{ lesson.seqNo }}</td>
@@ -40,7 +50,7 @@
         </div>
       </td>
     </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky:true;"></tr>
     <tr mat-row *matRowDef="let lesson;columns:displayedColumns"
       [class.example-expanded-row]="expandedLesson === lesson" (click)="onToggleLesson(lesson)">
     </tr>

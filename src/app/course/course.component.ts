@@ -9,6 +9,7 @@ import { debounceTime, distinctUntilChanged, startWith, tap, delay, catchError, 
 import { merge, fromEvent, Observable, of, throwError, Subscription } from "rxjs";
 import { Lesson } from '../model/lesson';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { SelectionModel } from '@angular/cdk/collections';
 
 
 @Component({
@@ -32,7 +33,7 @@ export class CourseComponent implements OnInit, AfterViewInit, OnDestroy {
   isLoading = false;
 
   displayedColumns = [
-    "seqNo", "description", "duration", "expand"
+    "select", "seqNo", "description", "duration", "expand"
   ];
 
   dataSource = new MatTableDataSource<Lesson | null>(this.lessons);
@@ -42,6 +43,8 @@ export class CourseComponent implements OnInit, AfterViewInit, OnDestroy {
   sortSubscription$: Subscription;
 
   materialTableEvents$: Subscription;
+
+  selection = new SelectionModel<Lesson>(true, []);
 
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -72,6 +75,23 @@ export class CourseComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  onLessonToggledOnCheckbox(lesson: Lesson) {
+    this.selection.toggle(lesson);
+    console.log(this.selection.selected);
+  }
+
+  isAllSelected() {
+    return this.selection.selected?.length === this.lessons?.length
+  }
+
+  toggleAllCheckbox() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.selection.select(...this.lessons);
+    }
+  }
+
   loadLessonsPage(): void {
     this.isLoading = true;
     this.lessonSubscription$ = this.coursesService.findLessons(this.course.id, this.sort?.direction ?? "asc", this.paginator?.pageIndex ?? 0, this.paginator?.pageSize ?? 5, this.sort?.active ?? "seqNo").pipe(
@@ -95,6 +115,7 @@ export class CourseComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         tap(() => {
           this.loadLessonsPage();
+          this.selection.clear();
         })
       ).subscribe();
   }
