@@ -12,6 +12,8 @@ import * as moment from 'moment';
 export class CourseDialogComponent implements OnInit {
   description: string;
   form: FormGroup;
+
+
   constructor(private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) private course: Course,
     private dialogRef: MatDialogRef<CourseDialogComponent>) {
@@ -33,6 +35,8 @@ export function openEditCourseDialog(dialog: MatDialog, course: Course) {
   const config = new MatDialogConfig();
   config.disableClose = true;
   config.autoFocus = true;
+  config.panelClass = "modal-panel";
+  config.backdropClass = "backdrop-modal-panel"
   config.data = {
     ...course
   };

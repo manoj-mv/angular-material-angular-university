@@ -48,6 +48,8 @@ import { VirtualScrollingComponent } from './virtual-scrolling/virtual-scrolling
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { LayoutModule } from '@angular/cdk/layout';
+
 
 @NgModule({
   declarations: [
@@ -97,7 +99,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatTreeModule,
     ScrollingModule,
     MatFormFieldModule,
-    MatExpansionModule
+    MatExpansionModule,
+    LayoutModule
   ],
   providers: [
     CoursesService,
